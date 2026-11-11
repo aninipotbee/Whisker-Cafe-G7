@@ -1,0 +1,69 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resident Cats{% endblock %}
+{% block breadcrumb %}Resident Cats{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">THE LITTLE PERSONALITIES BEHIND THE CAFÉ</p>
+        <h1>Meet our resident cats.</h1>
+        <p class="intro">
+            Every cat has their own personality.
+            Get to know our little residents before your visit!
+        </p>
+    </div>
+
+    <a class="button primary" href="{% url 'workspace:new' %}">
+        + Create a reservation
+    </a>
+</section>
+
+<section class="cat-grid" aria-label="Resident cat profiles">
+
+    {% for cat in cats %}
+
+    <article class="cat-card">
+
+        <div class="cat-portrait">
+            <img
+                src="{% static cat.image %}"
+                alt="Photo of {{ cat.name }}"
+                loading="lazy">
+        </div>
+
+        <div class="cat-card-body">
+
+            <span class="cat-tag">{{ cat.tag }}</span>
+
+            <h2>{{ cat.name }}</h2>
+
+            <p>{{ cat.personality }}</p>
+
+            <div class="cat-favorite">
+                <span>FAVORITE THING</span>
+                <strong>{{ cat.favorite }}</strong>
+            </div>
+
+            <a class="text-link"
+               href="{% url 'workspace:new' %}">
+                Request a visit with {{ cat.name }} →
+            </a>
+
+        </div>
+
+    </article>
+
+    {% endfor %}
+
+</section>
+
+<p class="cat-note">
+    Cat interactions depend on each cat's comfort and availability.
+    Our staff will always put their wellbeing first.
+</p>
+
+{% endblock %}

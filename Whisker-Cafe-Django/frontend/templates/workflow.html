@@ -1,0 +1,134 @@
+{% extends 'base.html' %}{% load ui %}{% block title %}Visit process{% endblock %}{% block breadcrumb %}Visit process{% endblock %}{% block content %}
+
+<!-- WHISKER CAFE - LINKED LIST SHOWCASE -->
+
+<section class="workflow-showcase">
+
+    <div class="workflow-showcase-copy">
+
+        <span class="workflow-showcase-kicker">
+            🧶 THE CAT CARE JOURNEY
+        </span>
+
+        <h1>
+            One step leads<br>
+            to <em>another.</em>
+        </h1>
+
+        <p>
+            Every café visit follows an ordered journey.
+            Each step connects to the next through a real
+            singly linked list.
+        </p>
+
+        <div class="workflow-showcase-facts">
+            <div>
+                <strong>HEAD</strong>
+                <small>First node</small>
+            </div>
+
+            <div>
+                <strong>TAIL</strong>
+                <small>Last node</small>
+            </div>
+
+            <div>
+                <strong>NULL</strong>
+                <small>End of chain</small>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="workflow-showcase-art">
+        <div class="workflow-thread"></div>
+
+        <div class="workflow-floating-cat">🐈</div>
+
+        <div class="workflow-yarn yarn-one">🧶</div>
+        <div class="workflow-yarn yarn-two">🧶</div>
+
+        <div class="workflow-art-caption">
+            <strong>Follow the thread!</strong>
+            <span>One node at a time.</span>
+        </div>
+    </div>
+
+</section>
+
+<div class="workflow-demo-banner">
+    <span class="workflow-demo-dot"></span>
+    <strong>LIVE LINKED-LIST LABORATORY</strong>
+    <span>Watch the nodes connect and change.</span>
+</div>
+<section class="page-heading">
+<div><p class="eyebrow">THE WHISKER CAFÉ GUEST JOURNEY</p><h1>Every visit has a happy ending.</h1><p class="intro">Follow each guest from reservation to checkout, one step at a time.</p>
+</div>
+<span class="soft-label">{{ list_size }} step{{ list_size|pluralize }} · visit stages</span>
+</section>
+<section class="surface process-panel">
+<div class="section-top">
+<div><h2>The guest experience</h2><p class="subtle">The café’s visit process, from arrival to goodbye.</p>
+</div>
+<span class="soft-label">Sequential</span>
+</div>
+<ol class="process-steps">{% for value in values %}
+<li><span class="step-number">{{ forloop.counter|stringformat:'02d' }}</span>
+<div><small>{% if forloop.first %}START{% elif forloop.last %}FINISH{% else %}STEP {{ forloop.counter }}{% endif %}</small><strong>{{ value }}</strong>
+</div>
+<span class="step-direction" aria-hidden="true">→</span>
+</li>
+{% empty %}
+<li class="empty-small">No steps yet. Add the first step below.
+</li>
+{% endfor %}
+</ol>
+</section>
+<div class="workflow-bottom">
+<section class="surface"><h2>Edit visit stages</h2><p class="subtle">Add, remove, or inspect a stage in the guest journey. Positions start at zero.</p>{% if can_edit %}
+<form method="post" class="operation-form" data-workflow data-size="{{ list_size }}" novalidate>{% csrf_token %}{{ form.non_field_errors }}
+<div class="field"><label for="id_operation">Action</label>{{ form.operation }}{{ form.operation.errors }}
+</div>
+<div class="field" data-field="value"><label for="id_value">Visit stage</label>{{ form.value }}{{ form.value.errors }}<small>Up to 80 characters. Duplicate values are allowed.</small>
+</div>
+<div class="field" data-field="index"><label for="id_index">Position (index)</label>{{ form.index }}{{ form.index.errors }}<small>Insert: 0 to {{ list_size }}. Read/remove: 0 to size − 1.</small>
+</div>
+<button class="button primary" type="submit">Apply action {% icon 'arrow' %}</button>
+</form>
+{% else %}<p class="empty-small">Your team owner can grant access to edit this process.</p>{% endif %}
+</section>
+<section class="surface">
+<div class="section-top"><h2>Latest changes</h2><a class="text-link" href="{% url 'workspace:activity' %}">All activity →</a>
+</div>
+{% for event in workflow_events %}
+<article class="operation-result"><code>{{ event.summary }}</code><p>Returned: <strong>{{ event.details.result|default_if_none:'No return value' }}</strong></p><small>{{ event.details.after|join:' → ' }}</small><time>{{ event.created_at|timesince }} ago</time>
+</article>
+{% empty %}<p class="empty-small">Changes to the guest journey will appear here.</p>{% endfor %}
+</section>
+</div>
+<details class="surface lab-inspector">
+<summary>{% icon 'workflow' %} Linked-list inspector <span class="representation {{ report.mode }}" data-representation="{{ report.mode }}">{{ report.label }}</span>
+</summary>
+<div><p>The guest journey is stored as a real singly linked list in <code>backend/dsa/singly_linked_list.py</code> with real nodes. The inspector below follows the actual <code>head</code> and <code>next</code> references.</p>
+<div class="workflow-summary"><span>size(): <strong>{{ list_size }}</strong></span><span>is_empty(): <strong>{{ list_empty }}</strong></span><span>head: <code>{{ report.head }}</code> · tail: <code>{{ report.tail }}</code></span>
+</div>
+{% if report.mode == 'nodes' %}
+<div class="node-chain animated-node-chain">{% for node in report.rows %}
+<article class="real-node animated-real-node"
+         data-node-id="{{ node.key }}">
+<div class="node-name">{{ node.key }}{% if forloop.first %} · head{% endif %}{% if forloop.last %} · tail{% endif %}
+</div>
+<div class="node-data"><small>data</small><strong>{{ node.data }}</strong>
+</div>
+<div class="node-next"><small>next</small><code>{{ node.next }}</code>
+</div>
+</article>
+{% if not forloop.last %}<span class="node-connector" aria-hidden="true">→</span>{% endif %}{% empty %}<p>head = None; tail = None.</p>{% endfor %}
+</div>
+{% else %}
+<div class="inline-state warning">The linked-list implementation must use actual nodes connected through next references.
+</div>
+{% if report.error %}<p>{{ report.error }}</p>{% endif %}{% endif %}<a class="text-link" href="{% url 'workspace:guide' %}#linked-task">View the linked-list requirements →</a>
+</div>
+</details>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}{% load ui %}
+{% block title %}Café overview{% endblock %}{% block breadcrumb %}Café overview{% endblock %}
+{% block content %}
+<section class="cafe-hero">
+  <div class="hero-copy"><p class="eyebrow">A LITTLE PAUSE IN A BUSY DAY</p><h1>Welcome to your<br><em>happy place.</em></h1><p class="intro">Your café at a glance. Keep reservations flowing, make room for every guest, and let the cats set the pace.</p><div class="hero-actions">{% if can_edit %}<a class="button primary" href="{% url 'workspace:new' %}">＋ Add a reservation</a>{% endif %}<a class="button secondary" href="{% url 'workspace:cats' %}">Meet the residents <span aria-hidden="true">↗</span></a></div></div>
+  <div class="hero-art" aria-label="Whisker Café illustration"><div class="sun-disc"></div><div class="hero-cat">🐈</div><div class="hero-caption"><span>THE CAT LOUNGE</span><strong>Slow down. Stay awhile.</strong></div><span class="hero-sticker">Purr<br>more.</span></div>
+</section>
+<section class="daily-strip"><div><span class="eyebrow">TODAY AT THE CAFÉ</span><strong>Little moments, neatly organized.</strong></div><div class="daily-note"><span class="live-dot"></span> Your workspace is up to date</div></section>
+<section class="stats cafe-stats" aria-label="Café totals">
+  <a href="{% url 'workspace:board' %}" class="stat-card stat-cream"><span class="stat-label">Total reservations</span><strong>{{ counts.active }}</strong><small>All active visits</small><span class="stat-ornament">✳</span></a>
+  <a href="{% url 'workspace:queue' %}" class="stat-card stat-sage"><span class="stat-label">In the waiting line</span><strong>{{ waiting_count }}</strong><small>Guests to welcome</small><span class="stat-ornament">♡</span></a>
+  <a href="{% url 'workspace:board' %}?status=doing" class="stat-card stat-peach"><span class="stat-label">Enjoying the lounge</span><strong>{{ counts.doing }}</strong><small>Currently visiting</small><span class="stat-ornament">☼</span></a>
+  <a href="{% url 'workspace:board' %}?status=done" class="stat-card stat-lilac"><span class="stat-label">Happy checkouts</span><strong>{{ counts.done }}</strong><small>Visits completed</small><span class="stat-ornament">✿</span></a>
+</section>
+<section class="dashboard-feature-grid">
+  <div class="feature-main">
+    <div class="section-heading"><div><p class="eyebrow">THE FRONT DESK</p><h2>Reservations to look after</h2><p class="subtle">Upcoming visits and bookings that need a little attention.</p></div><a class="text-link" href="{% url 'workspace:board' %}">All reservations ↗</a></div>
+    <div class="surface request-preview cafe-table">{% include 'includes/request_table.html' with items=attention %}</div>
+  </div>
+  <aside class="queue-feature">
+    <div class="queue-feature-top"><span class="eyebrow">THE WELCOME MAT</span><span class="queue-paw">🐾</span></div><h2>Everyone gets<br>a turn.</h2><p>Keep the visitor line fair and friendly. The next guest is always the one who arrived first.</p><div class="queue-count"><strong>{{ waiting_count }}</strong><span>guests<br>waiting</span></div><a class="button dark-button" href="{% url 'workspace:queue' %}">Open visitor queue ↗</a>
+  </aside>
+</section>
+<section class="lower-grid">
+  <div class="surface weekly-card"><div class="section-heading"><div><p class="eyebrow">A WEEK IN THE CAFÉ</p><h2>Reservations & checkouts</h2></div><span class="date-label">{{ chart.start|date:'M j' }} – {{ chart.end|date:'M j' }}</span></div><div class="weekly-numbers"><div><strong>{{ chart.created_total }}</strong><span>Booked</span></div><div><strong>{{ chart.resolved_total }}</strong><span>Completed</span></div><div><strong>{{ completion_rate }}%</strong><span>Completion</span></div></div><div class="week-bars" aria-label="Daily reservations booked and completed">{% for day in chart.days %}<div class="week-day"><div class="bar-pair"><span class="booked-bar" style="height:{{ day.created|default:0|add:1 }}0px" title="{{ day.created }} booked"></span><span class="done-bar" style="height:{{ day.resolved|default:0|add:1 }}0px" title="{{ day.resolved }} completed"></span></div><small>{{ day.day|date:'D' }}</small></div>{% endfor %}</div><div class="chart-key"><span><i class="key-dot booked"></i>Booked</span><span><i class="key-dot done"></i>Completed</span></div></div>
+  <div class="surface team-card"><div class="section-heading"><div><p class="eyebrow">THE PEOPLE BEHIND THE PAWS</p><h2>Café team</h2></div><a class="text-link" href="{% url 'accounts:team' %}">Meet team ↗</a></div><p class="subtle">A quick look at reservations currently assigned to staff.</p>{% for agent in agents %}<div class="workload-row"><span class="avatar">{{ agent.user.initial }}</span><div><strong>{{ agent.user.display_name }}</strong><small>{{ agent.user.username }}</small></div><span class="count-pill">{{ agent.count }} open</span></div>{% empty %}<p class="empty-small">Invite team members to share the work.</p>{% endfor %}</div>
+</section>
+<section class="recent-activity"><div class="section-heading"><div><p class="eyebrow">THE LITTLE THINGS THAT HAPPENED</p><h2>Recent activity</h2></div><a class="text-link" href="{% url 'workspace:activity' %}">View activity ↗</a></div><div class="activity-ribbon">{% for event in recent_events %}<div class="activity-ribbon-item"><span class="activity-dot"></span><div><strong>{{ event.summary }}</strong><small>{{ event.actor.display_name|default:'System' }} · {{ event.created_at|timesince }} ago</small></div></div>{% empty %}<p class="empty-small">Your team's updates will appear here.</p>{% endfor %}</div></section>
+{% endblock %}

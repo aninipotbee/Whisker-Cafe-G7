@@ -1,0 +1,341 @@
+
+{% extends 'base.html' %}
+{% load ui %}
+{% load static %}
+
+{% block title %}Reservations{% endblock %}
+{% block breadcrumb %}Reservations{% endblock %}
+
+{% block content %}
+
+<!-- RESERVATIONS HERO -->
+<section class="reservation-hero">
+    
+<div class="reservation-hero-art">
+    <div class="cat-photo-collage">
+
+        <div class="cat-photo-main">
+            <img src="{% static 'images/cats/mochi.jpg' %}"
+                 alt="Mochi, resident cat">
+            <span class="cat-photo-label">Meet Mochi ♡</span>
+        </div>
+
+        <div class="cat-photo-small cat-photo-one">
+            <img src="{% static 'images/cats/luna.jpg' %}"
+                 alt="Luna, resident cat">
+        </div>
+
+        <div class="cat-photo-small cat-photo-two">
+            <img src="{% static 'images/cats/milo.jpg' %}"
+                 alt="Milo, resident cat">
+        </div>
+
+        <div class="cat-photo-small cat-photo-three">
+            <img src="{% static 'images/cats/tofu.jpg' %}"
+                 alt="Tofu, resident cat">
+        </div>
+
+        <div class="cat-photo-sticker">
+            <span>🐾</span>
+            <strong>More purrs,</strong>
+            <strong>more smiles!</strong>
+        </div>
+
+    </div>
+</div>
+
+    <div class="reservation-hero-art" aria-hidden="true">
+        <span class="reservation-sun"></span>
+        <span class="reservation-paw paw-one">🐾</span>
+        <span class="reservation-paw paw-two">🐾</span>
+        <span class="reservation-cat">🐈</span>
+        <div class="reservation-sticker">
+            <strong>MEOW!</strong>
+            <span>You're welcome here</span>
+        </div>
+    </div>
+</section>
+
+<!-- RESERVATION STATISTICS -->
+<section class="reservation-stats">
+    <article class="reservation-stat stat-booked">
+        <span class="reservation-stat-icon">📅</span>
+        <span class="reservation-stat-label">Total bookings</span>
+        <strong>{{ counts.active }}</strong>
+        <small>Active reservations</small>
+    </article>
+
+    <article class="reservation-stat stat-waiting">
+        <span class="reservation-stat-icon">🐾</span>
+        <span class="reservation-stat-label">Upcoming visits</span>
+        <strong>{{ counts.todo }}</strong>
+        <small>Waiting to be welcomed</small>
+    </article>
+
+    <article class="reservation-stat stat-visiting">
+        <span class="reservation-stat-icon">☕</span>
+        <span class="reservation-stat-label">In the café</span>
+        <strong>{{ counts.doing }}</strong>
+        <small>Currently in progress</small>
+    </article>
+
+    <article class="reservation-stat stat-completed">
+        <span class="reservation-stat-icon">💚</span>
+        <span class="reservation-stat-label">Happy departures</span>
+        <strong>{{ counts.done }}</strong>
+        <small>Completed visits</small>
+    </article>
+</section>
+
+<!-- STATUS NAVIGATION -->
+<section class="reservation-section-heading">
+    <div>
+        <span class="reservation-kicker">THE GUEST LIST</span>
+        <h2>Reservation collection</h2>
+        <p>Find the right guest and keep their visit on track.</p>
+    </div>
+    <span class="reservation-decor">✿</span>
+</section>
+
+<div class="reservation-toolbar">
+    <div class="reservation-tabs">
+        <a href="{% url 'workspace:board' %}"
+           {% if not selected_status %}class="selected"{% endif %}>
+            All
+            <span>{{ counts.active }}</span>
+        </a>
+
+        {% for key,label in statuses %}
+        <a href="?status={{ key }}"
+           {% if selected_status == key %}class="selected"{% endif %}>
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="reservation-view-switch">
+        <a href="?{{ filter_query }}&view=list"
+           {% if view == 'list' %}class="selected"{% endif %}>
+            ☷ List
+        </a>
+        <a href="?{{ filter_query }}&view=board"
+           {% if view == 'board' %}class="selected"{% endif %}>
+            ▦ Board
+        </a>
+    </div>
+</div>
+
+<!-- SEARCH AND FILTERS -->
+<section class="reservation-filter-panel">
+    <form method="get" class="reservation-filter-form">
+
+        <input type="hidden" name="view" value="{{ view }}">
+        <input type="hidden" name="status" value="{{ selected_status }}">
+
+        <div class="reservation-search">
+            <span>⌕</span>
+            <label class="sr-only" for="q">Search reservations</label>
+            <input
+                type="search"
+                name="q"
+                id="q"
+                value="{{ query }}"
+                placeholder="Search guest, cat, or reservation..."
+                maxlength="100">
+        </div>
+
+        <label class="sr-only" for="priority">Priority</label>
+        <select id="priority" name="priority">
+            <option value="">All priorities</option>
+            <option value="high"
+                {% if request.GET.priority == 'high' %}selected{% endif %}>
+                High priority
+            </option>
+            <option value="medium"
+                {% if request.GET.priority == 'medium' %}selected{% endif %}>
+                Medium priority
+            </option>
+            <option value="low"
+                {% if request.GET.priority == 'low' %}selected{% endif %}>
+                Low priority
+            </option>
+        </select>
+
+        <label class="sr-only" for="assignee">Assigned staff</label>
+        <select name="assignee" id="assignee">
+            <option value="">All staff</option>
+            <option value="me"
+                {% if request.GET.assignee == 'me' %}selected{% endif %}>
+                Assigned to me
+            </option>
+            <option value="unassigned"
+                {% if request.GET.assignee == 'unassigned' %}selected{% endif %}>
+                Unassigned
+            </option>
+            {% for agent in agents %}
+            <option value="{{ agent.user_id }}"
+                {% if request.GET.assignee == agent.user_id|stringformat:'s' %}selected{% endif %}>
+                {{ agent.user.display_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label class="sr-only" for="sort">Sort reservations</label>
+        <select name="sort" id="sort">
+            <option value="updated"
+                {% if request.GET.sort == 'updated' or not request.GET.sort %}selected{% endif %}>
+                Recently updated
+            </option>
+            <option value="created"
+                {% if request.GET.sort == 'created' %}selected{% endif %}>
+                Newest first
+            </option>
+            <option value="oldest"
+                {% if request.GET.sort == 'oldest' %}selected{% endif %}>
+                Oldest first
+            </option>
+            <option value="due"
+                {% if request.GET.sort == 'due' %}selected{% endif %}>
+                Due date
+            </option>
+        </select>
+
+        <button type="submit" class="reservation-filter-button">
+            Apply filters
+        </button>
+
+        {% if query or request.GET.priority or request.GET.assignee or selected_status %}
+        <a class="reservation-clear"
+           href="{% url 'workspace:board' %}">
+            Clear
+        </a>
+        {% endif %}
+
+    </form>
+</section>
+
+<!-- RESERVATION RESULTS -->
+<section class="reservation-results">
+
+    {% if view == 'list' %}
+
+        {% include 'includes/request_table.html' %}
+
+    {% else %}
+
+        <div class="reservation-board">
+
+            {% for group in groups %}
+
+            <section class="reservation-board-column">
+
+                <div class="reservation-board-heading">
+                    <h3>
+                        <span class="column-dot {{ group.key }}"></span>
+                        {{ group.label }}
+                    </h3>
+                    <span class="reservation-board-count">
+                        {{ group.items|length }}
+                    </span>
+                </div>
+
+                {% for item in group.items %}
+
+                <article class="reservation-card">
+
+                    <div class="reservation-card-top">
+                        <span class="reference">{{ item.reference }}</span>
+                        <span class="priority {{ item.priority }}">
+                            {{ item.get_priority_display }}
+                        </span>
+                    </div>
+
+                    <a href="{% url 'workspace:detail' item.id %}"
+                       class="reservation-card-title">
+                        {{ item.title }}
+                    </a>
+
+                    <p class="reservation-card-description">
+                        {{ item.description|truncatechars:95 }}
+                    </p>
+
+                    <div class="reservation-card-details">
+                        <span>🐱 {{ item.cat_name|default:'Guest cat' }}</span>
+                        <span>👥 {{ item.guest_count }} guest{{ item.guest_count|pluralize }}</span>
+                    </div>
+
+                    <div class="reservation-card-footer">
+                        <span>{{ item.category }}</span>
+
+                        {% if item.assignee %}
+                        <span class="reservation-assignee">
+                            {{ item.assignee.initial }}
+                        </span>
+                        {% else %}
+                        <span class="reservation-unassigned">
+                            Unassigned
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if can_edit %}
+                    <form method="post"
+                          action="{% url 'workspace:move' item.id %}"
+                          class="reservation-card-move">
+
+                        {% csrf_token %}
+
+                        <label class="sr-only"
+                               for="move-{{ item.id }}">
+                            Change reservation status
+                        </label>
+
+                        <select name="status" id="move-{{ item.id }}">
+                            {% for k,label in statuses %}
+                            <option value="{{ k }}"
+                                {% if item.status == k %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit">Update</button>
+                    </form>
+                    {% endif %}
+
+                </article>
+
+                {% empty %}
+                <div class="reservation-empty-column">
+                    <span>🐈</span>
+                    <p>No reservations here yet.</p>
+                </div>
+                {% endfor %}
+
+                {% if can_edit %}
+                <a class="reservation-add-card"
+                   href="{% url 'workspace:new' %}?status={{ group.key }}">
+                    + Add reservation
+                </a>
+                {% endif %}
+
+            </section>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+    {% include 'includes/pagination.html' %}
+
+</section>
+
+<!-- FOOTNOTE -->
+<div class="reservation-footer-note">
+    <span>🐾</span>
+    <p>Every reservation is another chance to make someone's day a little happier.</p>
+    <span>Made with love at Whisker Café.</span>
+</div>
+
+{% endblock %}

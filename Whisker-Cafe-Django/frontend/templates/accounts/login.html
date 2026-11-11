@@ -1,0 +1,4 @@
+{% extends 'accounts/auth_base.html' %}{% block title %}Sign in{% endblock %}{% block content %}<p class="eyebrow">WELCOME BACK</p><h1>Sign in to Whisker Café</h1><p class="intro">Your café workspace, right where you left it.</p>
+<form method="post" class="auth-form" novalidate>{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">{% include 'includes/form_fields.html' %}<a class="forgot-link" href="{% url 'accounts:password_reset' %}">Forgot your password?</a><button class="button primary full-width" type="submit">Sign in →</button>
+</form>
+<p class="auth-alt">New to Whisker Café? <a href="{% url 'accounts:register' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">Create your workspace</a></p>{% endblock %}

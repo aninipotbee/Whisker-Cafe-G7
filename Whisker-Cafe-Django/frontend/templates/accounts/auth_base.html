@@ -1,0 +1,27 @@
+{% load static ui %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f2e9"><title>{% block title %}Welcome{% endblock %} · Whisker Café</title><link rel="icon" href="{% static 'favicon.svg' %}"><link rel="preload" href="{% static 'fonts/InterVariable.woff2' %}" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="{% static 'app.css' %}"><script src="{% static 'app.js' %}" defer></script></head><body class="auth-page">
+<aside class="auth-story"><a class="brand" href="{% url 'accounts:login' %}"><span class="brand-mark">🐾</span>whisker<span class="brand-dot">café</span></a>
+<div class="auth-story-body"><span class="pill-light">A CAT CAFÉ FOR EVERY CAT LOVER</span><h1>Good visits start<br>with a little<br><em>purr-planning.</em></h1><p>Keep reservations, visitors, and café sessions in one cozy workspace.</p>
+<div class="auth-demo" aria-label="The Whisker Café visit process">
+<div><span class="demo-dot"></span>One cozy workspace<span class="soft-label">Connected</span>
+</div>
+<ol>
+<li><span>01</span><strong>Book a visit</strong><small>Guest and cat details, together.</small>
+</li>
+<li><span>02</span><strong>Welcome the next guest</strong><small>A fair, first-come visitor line.</small>
+</li>
+<li><span>03</span><strong>Make the visit memorable</strong><small>From check-in to happy checkout.</small>
+</li>
+</ol>
+</div>
+</div>
+<p class="auth-footer">Good coffee. Happy cats. Lovely visits.</p>
+</aside>
+<main class="auth-main">
+<div class="auth-card">{% for message in messages %}
+<div class="notice {{ message.tags }}" role="status">{{ message }}
+</div>
+{% endfor %}{% block content %}{% endblock %}
+</div>
+<p class="auth-bottom">Whisker Café · A little more purr in your day.</p>
+</main>
+</body></html>

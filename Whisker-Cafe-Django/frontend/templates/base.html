@@ -1,0 +1,42 @@
+{% load static ui %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f3e9"><meta name="description" content="Whisker Café, a cat café reservation and visitor management space.">
+<title>{% block title %}Café overview{% endblock %} · Whisker Café</title>
+<link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml"><link rel="preload" href="{% static 'fonts/InterVariable.woff2' %}" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="{% static 'app.css' %}"><script src="{% static 'app.js' %}" defer></script>
+</head>
+<body class="accent-{{ workspace.accent|default:'teal' }}">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-main">
+    <a class="brand" href="{% url 'workspace:dashboard' %}" aria-label="Whisker Café home"><span class="brand-mark">w.</span><span class="brand-name">whisker<span>café</span></span></a>
+    {% if workspace %}
+    <details class="workspace-switch"><summary><span class="workspace-avatar">{{ workspace.name|first|upper }}</span><span class="workspace-name">{{ workspace.name }}<small>CAFÉ WORKSPACE</small></span>{% icon 'chevron' %}</summary>
+      <div class="switch-menu">{% for member in workspace_memberships %}<form method="post" action="{% url 'accounts:switch_workspace' member.workspace_id %}">{% csrf_token %}<button type="submit">{{ member.workspace.name }}{% if member.workspace_id == workspace.id %} ✓{% endif %}</button></form>{% endfor %}<a href="{% url 'accounts:new_workspace' %}">+ Create workspace</a></div>
+    </details>{% endif %}
+    <div class="header-spacer"></div>
+    <form method="get" action="{% url 'workspace:board' %}" class="global-search">{% icon 'search' %}<label class="sr-only" for="global-q">Search reservations</label><input id="global-q" type="search" name="q" placeholder="Find a reservation…" maxlength="100"><button class="search-go" aria-label="Search" type="submit">↵</button></form>
+    <details class="user-menu"><summary><span class="avatar">{{ request.user.initial }}</span><span class="user-name">{{ request.user.display_name }}<small>{{ membership.get_role_display|default:'Account' }}</small></span>{% icon 'chevron' %}</summary><div class="dropdown"><a href="{% url 'accounts:profile' %}">Your profile</a><a href="{% url 'accounts:password_change' %}">Change password</a><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form></div></details>
+    <button type="button" class="icon-button mobile-menu" data-menu-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">{% icon 'menu' %}</button>
+  </div>
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation"><div class="nav-inner">
+    <a href="{% url 'workspace:dashboard' %}" {% if page == 'dashboard' %}class="active" aria-current="page"{% endif %}>Overview</a>
+    <a href="{% url 'workspace:board' %}" {% if page == 'board' %}class="active" aria-current="page"{% endif %}>Reservations <span class="nav-count">{{ counts.active|default:0 }}</span></a>
+    <a href="{% url 'workspace:queue' %}" {% if page == 'queue' %}class="active" aria-current="page"{% endif %}>Visitor queue{% if waiting_count %}<span class="nav-count queue-badge">{{ waiting_count }}</span>{% endif %}</a>
+    <a href="{% url 'workspace:workflow' %}" {% if page == 'workflow' %}class="active" aria-current="page"{% endif %}>Visit process</a>
+    <a href="{% url 'workspace:cats' %}" {% if page == 'cats' %}class="active" aria-current="page"{% endif %}>Resident cats</a>
+    <a href="{% url 'workspace:reports' %}" {% if page == 'reports' %}class="active" aria-current="page"{% endif %}>Reports</a>
+    <a href="{% url 'workspace:activity' %}" {% if page == 'activity' %}class="active" aria-current="page"{% endif %}>Activity</a>
+    <a href="{% url 'workspace:archive' %}" {% if page == 'archive' %}class="active" aria-current="page"{% endif %}>Archive</a>
+    <span class="nav-divider"></span><a href="{% url 'accounts:team' %}" {% if page == 'team' %}class="active"{% endif %}>Team</a>
+    {% if can_manage %}<a href="{% url 'workspace:settings' %}" {% if page == 'settings' %}class="active"{% endif %}>Settings</a>{% endif %}
+    <a href="{% url 'workspace:guide' %}" {% if page == 'guide' %}class="active"{% endif %}>DSA learning lab</a>
+  </div></nav>
+</header>
+<main class="main-content" id="main">
+  {% for message in messages %}<div class="notice {{ message.tags }}" role="status"><span>{{ message }}</span><button type="button" data-dismiss aria-label="Dismiss notification">×</button></div>{% endfor %}
+  {% if membership and not can_edit %}<div class="viewer-notice">You have viewer access. Your team owner can grant editing access.</div>{% endif %}
+  {% block content %}{% endblock %}
+  <footer class="page-footer"><span><strong>Whisker Café</strong> <span class="footer-divider">·</span> {{ workspace.name|default:'Your café workspace' }}</span><span>Good coffee. Gentle cats. Happy guests.</span><a href="{% url 'workspace:guide' %}">Queue & linked-list learning lab ↗</a></footer>
+</main>
+</body></html>

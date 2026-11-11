@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% load ui %}{% block title %}{% if editing %}Edit reservation{% else %}New reservation{% endif %}{% endblock %}{% block breadcrumb %}<a href="{% url 'workspace:board' %}">Reservations</a> / {% if editing %}Edit{% else %}New{% endif %}{% endblock %}{% block content %}<a class="back-link" href="{% url 'workspace:board' %}">← Back to reservations</a>
+<section class="page-heading">
+<div><p class="eyebrow">PLAN A VISIT WORTH PURRING ABOUT</p><h1>{% if editing %}Edit reservation{% else %}Create a reservation{% endif %}</h1><p class="intro">Add the guest, cat, and session details for this café visit.</p>
+</div>
+</section>
+<div class="form-layout">
+<section class="surface">
+<form method="post" class="request-form" novalidate>{% csrf_token %}{% include 'includes/form_fields.html' %}
+<div class="form-actions"><a class="button secondary" href="{% url 'workspace:board' %}">Cancel</a><button class="button primary" type="submit">{% if editing %}Save changes{% else %}Create reservation{% endif %}</button>
+</div>
+</form>
+</section>
+<aside>
+<div class="helper-card"><span class="stat-icon blue">{% icon 'note' %}</span><h3>A good reservation starts with clear details.</h3><p>Add the customer name, cat name, guest count, and preferred session so the café team can prepare.</p><hr><h4>Ready to welcome?</h4><p>Save the reservation, then add it to the visitor queue. Your team can welcome guests in arrival order.</p>
+</div>
+{% if editing %}
+<div class="helper-card"><h4>Working together</h4><p>If another teammate changes this request while you edit, Whisker Café will ask you to reload before saving.</p>
+</div>
+{% endif %}
+</aside>
+</div>
+{% endblock %}
